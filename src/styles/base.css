@@ -1,0 +1,172 @@
+:root {
+  --ink: #111111;
+  --paper: #fff8ef;
+  --cream: #fffaf3;
+  --red: #f12c2c;
+  --red-deep: #bf1e1e;
+  --blue: #1e50d2;
+  --blue-deep: #14266d;
+  --cyan: #57d9ee;
+  --pink: #ef70da;
+  --yellow: #fac800;
+  --orange: #ff8d17;
+  --gold: #ffde4c;
+  --white: #ffffff;
+  --shadow: 4px 5px 0 0 rgba(0, 0, 0, 0.92);
+  --frame-width: min(100vw, 420px);
+  --font-display: "Trebuchet MS", "Franklin Gothic Medium", sans-serif;
+  --font-body: "Aptos", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.75), transparent 30%),
+    linear-gradient(135deg, #1e1e1e, #080808 60%);
+  color: var(--ink);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  padding: 16px;
+}
+
+.app-frame {
+  width: var(--frame-width);
+  min-height: calc(100vh - 32px);
+  background: var(--yellow);
+  border: 4px solid rgba(0, 0, 0, 0.95);
+  border-radius: 42px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.28);
+  isolation: isolate;
+}
+
+.app-frame[data-screen="summary"] {
+  border-width: 2px;
+}
+
+.screen {
+  min-height: calc(100vh - 40px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 18px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  overflow: hidden;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.38) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.bg-explore {
+  background-color: #fac800;
+  background-image: url("../assets/lite/background/iPhone 17 - 88.png");
+  background-position: top center;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+.bg-develop {
+  background-color: #e61d2a;
+  background-image: url("../assets/lite/background/iPhone 17 - 89.png");
+  background-position: top center;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+}
+
+.bg-transition {
+  background-color: #1e50d2;
+  background-image: url("../assets/lite/background/iPhone 17 - 87.png");
+  background-position: top center;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  color: var(--white);
+}
+
+.section-title {
+  margin: 20px 0 8px;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 8vw, 54px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.section-title .accent,
+.question-card__title .accent {
+  color: var(--red);
+}
+
+.section-subtitle {
+  margin: 0;
+  max-width: 280px;
+  font-size: 16px;
+}
+
+.screen-footer-note {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.3;
+  opacity: 0.88;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .page-shell {
+    padding: 0;
+  }
+
+  .app-frame {
+    width: 100vw;
+    min-height: 100vh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .screen {
+    min-height: 100vh;
+  }
+}
