@@ -86,6 +86,19 @@ button {
   border-width: 2px;
 }
 
+body[data-screen="career-roadmap"] .page-shell {
+  padding: 0;
+}
+
+body[data-screen="career-roadmap"] .app-frame {
+  width: 100vw;
+  min-height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 .screen {
   min-height: calc(100vh - 40px);
   position: relative;

@@ -66,8 +66,9 @@ export function renderStudentUnlockScreen(state) {
             >
             <button
               class="student-unlock__bubble"
-              type="submit"
+              type="button"
               aria-label="Please enter your SID to unlock"
+              data-action="student-unlock-submit"
             >
               <img
                 class="student-unlock__bubble-image"

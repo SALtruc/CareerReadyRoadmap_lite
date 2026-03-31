@@ -44,6 +44,13 @@ export function openStudentUnlockScreen() {
   state.showStageInfo = false;
 }
 
+export function openStudentUnlockLoadingScreen() {
+  state.screen = "student-unlock-loading";
+  state.showRoadmapCheck = false;
+  state.roadmapAutoAdvanceDisabled = true;
+  state.showStageInfo = false;
+}
+
 export function openCareerRoadmapScreen() {
   state.screen = "career-roadmap";
   state.showRoadmapCheck = false;
@@ -65,7 +72,7 @@ export function startPremadeRoadmapFlow() {
 
 export function completeStudentUnlock() {
   state.hasUnlockedRoadmap = true;
-  openCareerRoadmapScreen();
+  openStudentUnlockLoadingScreen();
 }
 
 export function openExploreScreen(stage = "explore", options = {}) {

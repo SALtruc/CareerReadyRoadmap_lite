@@ -6,6 +6,7 @@ import { questions } from "./data/questions.js";
 import { exportCareerRoadmap } from "./interactions/exportCareerRoadmap.js";
 import { playQuestionResponseFeedback } from "./interactions/playQuestionResponseFeedback.js";
 import { setupQuestionSwipe, syncQuestionDeckHint } from "./interactions/setupQuestionSwipe.js";
+import { studentUnlockLoadingGifPath } from "./screens/StudentUnlockLoadingScreen.js";
 import { state } from "./state/store.js";
 import {
   answerCurrentQuestion,
@@ -15,6 +16,7 @@ import {
   openChooseCharacterScreen,
   openExploreScreen,
   openQuestionDeckScreen,
+  openCareerRoadmapScreen,
   openStudentUnlockScreen,
   openSummaryScreen,
   openStageDetailScreen,
@@ -29,6 +31,7 @@ import {
   toggleStageInfo
 } from "./state/actions.js";
 import { markAssetFailed, markAssetLoaded, subscribeToAssetStateChanges, warmAssetSources } from "./utils/assets.js";
+import { getGifDurationMs } from "./utils/gif.js";
 
 const app = document.getElementById("app");
 const APP_STATE_STORAGE_KEY = "career-ready-state-v3";
@@ -36,6 +39,9 @@ const previewMode = new URLSearchParams(window.location.search).get("preview");
 let roadmapCheckTimer = null;
 let roadmapSummaryTimer = null;
 let roadmapSequenceRunning = false;
+let studentUnlockLoadingTimer = null;
+let studentUnlockLoadingSequenceRunning = false;
+let studentUnlockLoadingSequenceToken = 0;
 let questionIntroTimer = null;
 let previousQuestionDeckProgress = null;
 let questionButtonAnswerTimer = null;
@@ -67,6 +73,10 @@ const studentUnlockAssetSources = [
   "./src/assets/lite/studentUnclock/Bubble Chat.png",
   "./src/assets/lite/studentUnclock/Character.png"
 ];
+const studentUnlockLoadingAssetSources = [
+  studentUnlockLoadingGifPath
+];
+const studentUnlockLoadingFallbackMs = 6000;
 const questionActionAssetSources = [
   "./src/assets/button/no.png",
   "./src/assets/button/yes.png"
@@ -92,6 +102,7 @@ function render() {
   const preservedScroll = capturePreservedScroll();
   persistAppState();
   app.dataset.screen = state.screen;
+  document.body.dataset.screen = state.screen;
   app.innerHTML = renderApp(state);
   restorePreservedScroll(preservedScroll);
   bindAssetImages();
@@ -100,6 +111,7 @@ function render() {
   syncQuestionDeckHint(app, state.swipeFeedback);
   syncActivitySelectionCelebration();
   syncRoadmapSequence();
+  syncStudentUnlockLoadingSequence();
   syncQuestionIntroOverlay();
   warmAssetSources(getPredictiveAssetSources(state));
 
@@ -284,17 +296,27 @@ async function submitStudentUnlock(form) {
     return;
   }
 
+  const isLocalUiOnly = shouldSkipStudentUnlockSubmit();
   const studentIdDigits = String(state.studentIdDraft || "").trim();
   const trapField = form.querySelector("[data-student-unlock-trap]");
   const submitButton = form.querySelector(".student-unlock__bubble");
 
-  if (studentIdDigits.length !== 7) {
+  if (!isLocalUiOnly && studentIdDigits.length !== 7) {
     setStudentUnlockStatus("Please enter the 7 digits after S.", "error");
     return;
   }
 
+  const unlockRequestBody = {
+    studentId: `S${studentIdDigits}`,
+    roadmapVariant: state.roadmapVariant,
+    answers: state.answers,
+    website: trapField instanceof HTMLInputElement ? trapField.value : ""
+  };
+
   studentUnlockRequestInFlight = true;
-  setStudentUnlockStatus("Unlocking your roadmap...");
+  setStudentUnlockStatus(
+    isLocalUiOnly ? "Loading your roadmap..." : "Unlocking your roadmap..."
+  );
 
   if (submitButton instanceof HTMLButtonElement) {
     submitButton.classList.remove("is-celebrating");
@@ -305,24 +327,8 @@ async function submitStudentUnlock(form) {
   }
 
   try {
-    const response = await fetch("/api/unlock", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify({
-        studentId: `S${studentIdDigits}`,
-        roadmapVariant: state.roadmapVariant,
-        answers: state.answers,
-        website: trapField instanceof HTMLInputElement ? trapField.value : ""
-      })
-    });
-
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok || !payload.ok) {
-      throw new Error(payload.message || "We couldn't save your roadmap right now. Please try again.");
+    if (!isLocalUiOnly) {
+      await submitStudentUnlockRequest(unlockRequestBody);
     }
 
     completeStudentUnlock();
@@ -344,6 +350,41 @@ async function submitStudentUnlock(form) {
 
     syncStudentUnlockButtonState();
   }
+}
+
+async function submitStudentUnlockRequest(requestBody) {
+  if (shouldSkipStudentUnlockSubmit()) {
+    return { ok: true, skipped: true };
+  }
+
+  const response = await fetch("/api/unlock", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  return parseUnlockApiResponse(response);
+}
+
+function shouldSkipStudentUnlockSubmit() {
+  const { protocol, hostname, port } = window.location;
+  const isFile = protocol === "file:";
+  const isLocalHost = hostname === "127.0.0.1" || hostname === "localhost";
+  const isDevPort = port === "5500";
+  return isFile || isLocalHost || isDevPort;
+}
+
+async function parseUnlockApiResponse(response) {
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok || !payload.ok) {
+    throw new Error(payload.message || "We couldn't save your roadmap right now. Please try again.");
+  }
+
+  return payload;
 }
 
 function syncRoadmapSequence() {
@@ -394,6 +435,77 @@ function clearRoadmapSequence() {
   roadmapCheckTimer = null;
   roadmapSummaryTimer = null;
   roadmapSequenceRunning = false;
+}
+
+function syncStudentUnlockLoadingSequence() {
+  if (state.screen !== "student-unlock-loading") {
+    clearStudentUnlockLoadingSequence();
+    return;
+  }
+
+  const loadingGif = app.querySelector("[data-student-unlock-loading-gif]");
+
+  if (!(loadingGif instanceof HTMLImageElement)) {
+    return;
+  }
+
+  if (studentUnlockLoadingSequenceRunning) {
+    return;
+  }
+
+  if (!loadingGif.complete) {
+    if (loadingGif.dataset.sequenceBound === "true") {
+      return;
+    }
+
+    const retrySequenceSync = () => {
+      loadingGif.dataset.sequenceBound = "false";
+      syncStudentUnlockLoadingSequence();
+    };
+
+    loadingGif.dataset.sequenceBound = "true";
+    loadingGif.addEventListener("load", retrySequenceSync, { once: true });
+    loadingGif.addEventListener("error", retrySequenceSync, { once: true });
+    return;
+  }
+
+  studentUnlockLoadingSequenceRunning = true;
+  const sequenceToken = ++studentUnlockLoadingSequenceToken;
+  const gifSource = loadingGif.currentSrc || loadingGif.src || studentUnlockLoadingGifPath;
+  const durationPromise = loadingGif.naturalWidth > 0
+    ? getGifDurationMs(gifSource).catch(() => studentUnlockLoadingFallbackMs)
+    : Promise.resolve(studentUnlockLoadingFallbackMs);
+
+  durationPromise.then((durationMs) => {
+      if (
+        state.screen !== "student-unlock-loading" ||
+        sequenceToken !== studentUnlockLoadingSequenceToken
+      ) {
+        return;
+      }
+
+      studentUnlockLoadingTimer = window.setTimeout(() => {
+        if (
+          state.screen !== "student-unlock-loading" ||
+          sequenceToken !== studentUnlockLoadingSequenceToken
+        ) {
+          return;
+        }
+
+        openCareerRoadmapScreen();
+        render();
+      }, Math.max(durationMs, 1200));
+    });
+}
+
+function clearStudentUnlockLoadingSequence() {
+  if (studentUnlockLoadingTimer) {
+    window.clearTimeout(studentUnlockLoadingTimer);
+  }
+
+  studentUnlockLoadingTimer = null;
+  studentUnlockLoadingSequenceRunning = false;
+  studentUnlockLoadingSequenceToken += 1;
 }
 
 function syncQuestionIntroOverlay() {
@@ -796,13 +908,26 @@ function getPredictiveAssetSources(currentState) {
       return [
         ...summaryAssetSources,
         ...studentUnlockAssetSources,
+        ...studentUnlockLoadingAssetSources,
         ROADMAP_PREMADE_ASSET_PATH
       ];
     case "student-unlock":
       return currentState.roadmapVariant === "premade"
-        ? [...studentUnlockAssetSources, ROADMAP_PREMADE_ASSET_PATH]
+        ? [
+            ...studentUnlockAssetSources,
+            ...studentUnlockLoadingAssetSources,
+            ROADMAP_PREMADE_ASSET_PATH
+          ]
         : [
             ...studentUnlockAssetSources,
+            ...studentUnlockLoadingAssetSources,
+            ...getRoadmapAssetPaths(getSelectedRoadmapActivityIds(currentState))
+          ];
+    case "student-unlock-loading":
+      return currentState.roadmapVariant === "premade"
+        ? [...studentUnlockLoadingAssetSources, ROADMAP_PREMADE_ASSET_PATH]
+        : [
+            ...studentUnlockLoadingAssetSources,
             ...getRoadmapAssetPaths(getSelectedRoadmapActivityIds(currentState))
           ];
     case "explore": {
@@ -922,6 +1047,9 @@ function handleAppClick(event) {
       break;
     case "download-career-roadmap":
       void handleCareerRoadmapDownload(actionElement);
+      return;
+    case "student-unlock-submit":
+      void submitStudentUnlock(app.querySelector("[data-form='student-unlock']"));
       return;
     default:
       return;

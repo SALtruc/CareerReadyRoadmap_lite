@@ -4,6 +4,7 @@ import { renderExploreScreen } from "./screens/ExploreScreen.js";
 import { renderQuestionDeckScreen } from "./screens/QuestionDeckScreen.js";
 import { renderRoadmapScreen } from "./screens/RoadmapScreen.js";
 import { renderStudentUnlockScreen } from "./screens/StudentUnlockScreen.js";
+import { renderStudentUnlockLoadingScreen } from "./screens/StudentUnlockLoadingScreen.js";
 import { renderSummaryScreen } from "./screens/SummaryScreen.js";
 import { renderWelcomeScreen } from "./screens/WelcomeScreen.js";
 
@@ -23,6 +24,8 @@ export function renderApp(state) {
       return renderSummaryScreen(state);
     case "student-unlock":
       return renderStudentUnlockScreen(state);
+    case "student-unlock-loading":
+      return renderStudentUnlockLoadingScreen(state);
     case "explore":
       return renderExploreScreen(state);
     default:

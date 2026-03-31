@@ -6,30 +6,42 @@ const liteRoadmapAssetFolder = "./src/assets/lite";
 
 export const ROADMAP_BACKGROUND_SIZE = {
   width: 1980,
-  height: 12117
+  height: 12017
 };
 
 export const ROADMAP_PREMADE_SIZE = {
-  width: 118,
-  height: 1024
+  width: 1212,
+  height: 10488
 };
 
 export const ROADMAP_BACKGROUND_ASSET_PATH =
   `${roadmapAssetFolder}/Background cho Roadmap.png`;
 
 export const ROADMAP_PREMADE_ASSET_PATH =
-  `${liteRoadmapAssetFolder}/lite_roadmap.jpg`;
+  `${liteRoadmapAssetFolder}/Lite_roadmap.png`;
 
 export const ROADMAP_FACEBOOK_LINKS = {
   sgs: "https://www.facebook.com/RMITCareerReadySGS",
   hanoi: "https://www.facebook.com/RMITCareerReadyHN"
 };
 
-export const roadmapStageScoreLayout = {
+const customRoadmapStageScoreLayout = {
   explore: { x: 458, y: 1970, fontSize: 120 },
   develop: { x: 989, y: 1970, fontSize: 120 },
   transition: { x: 1520, y: 1970, fontSize: 120 }
 };
+
+const premadeRoadmapStageScoreLayout = {
+  explore: { x: 290, y: 1188, fontSize: 82, color: "#ffffff", fontWeight: 700 },
+  develop: { x: 609, y: 1188, fontSize: 82, color: "#000000", fontWeight: 700 },
+  transition: { x: 929, y: 1188, fontSize: 82, color: "#ffffff", fontWeight: 700 }
+};
+
+export function getRoadmapStageScoreLayout(roadmapVariant = "custom") {
+  return roadmapVariant === "premade"
+    ? premadeRoadmapStageScoreLayout
+    : customRoadmapStageScoreLayout;
+}
 
 export const roadmapStageIconSlots = {
   explore: [

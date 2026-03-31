@@ -959,6 +959,7 @@
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  background: none;
 }
 
 .screen--career-roadmap .topbar {
@@ -974,7 +975,7 @@
   top: calc(env(safe-area-inset-top, 0px) + 66px);
   left: 50%;
   transform: translateX(-50%);
-  width: min(calc(100vw - 12px), 392px);
+  width: calc(100vw - 20px);
   padding: 0 10px;
   display: flex;
   align-items: center;
@@ -1045,12 +1046,13 @@
 
 .career-roadmap-score__value {
   display: block;
-  color: var(--ink);
+  color: var(--roadmap-score-color, var(--ink));
   font-family: "Museo", var(--font-display);
-  font-weight: 500;
+  font-weight: var(--roadmap-score-weight, 500);
   font-size: var(--roadmap-score-font, 7.6cqw);
   letter-spacing: -0.065em;
   line-height: 0.9;
+  white-space: nowrap;
 }
 
 .career-roadmap-selection {
@@ -1084,7 +1086,7 @@
 
 .career-roadmap-download-hotspot {
   left: 21.1%;
-  top: 84.5%;
+  top: 87.5%;
   width: 57.5%;
   height: 2.08%;
   border-radius: 999px;
@@ -1092,14 +1094,14 @@
 
 .career-roadmap-social-link--sgs {
   left: 28.1%;
-  top: 90.22%;
+  top: 92%;
   width: 49%;
   height: 1%;
 }
 
 .career-roadmap-social-link--hanoi {
   left: 28.1%;
-  top: 90.84%;
+  top: 92.8%;
   width: 49%;
   height: 1%;
 }
@@ -3802,8 +3804,35 @@
   height: auto;
 }
 
+.screen--student-unlock-loading {
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 24px)
+    20px
+    calc(env(safe-area-inset-bottom, 0px) + 24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-unlock-loading {
+  width: min(100%, 680px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-unlock-loading__image {
+  display: block;
+  width: clamp(280px, 48vw, 520px);
+  max-width: 100%;
+  max-height: min(76vh, 860px);
+  transform: translateY(58px) scale(1.35);
+  height: auto;
+  object-fit: contain;
+}
+
 .screen--career-roadmap {
-  padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 22px);
+  padding: 0;
 }
 
 .career-roadmap-toolbar {
@@ -3811,12 +3840,9 @@
 }
 
 .career-roadmap-shell {
-  width: min(100%, 400px);
-  margin: 0 auto;
-  padding:
-    calc(env(safe-area-inset-top, 0px) + 102px)
-    10px
-    calc(env(safe-area-inset-bottom, 0px) + 28px);
+  width: 100%;
+  margin: 0;
+  padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 24px);
 }
 
 .career-roadmap-poster__base {
@@ -3899,17 +3925,31 @@
     margin-right: -2px;
   }
 
+  .screen--student-unlock-loading {
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 18px)
+      16px
+      calc(env(safe-area-inset-bottom, 0px) + 18px);
+  }
+
+  .student-unlock-loading {
+    width: min(100%, 360px);
+  }
+
+  .student-unlock-loading__image {
+    width: min(100%, 620px);
+    max-height: 90vh;
+    transform: translateY(58px) scale(1.35);
+  }
+
   .career-roadmap-toolbar {
-    width: min(calc(100vw - 12px), 372px);
+    width: calc(100vw - 16px);
     padding: 0 8px;
   }
 
   .career-roadmap-shell {
     width: 100%;
-    padding:
-      calc(env(safe-area-inset-top, 0px) + 98px)
-      8px
-      calc(env(safe-area-inset-bottom, 0px) + 24px);
+    padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 20px);
   }
 }
 

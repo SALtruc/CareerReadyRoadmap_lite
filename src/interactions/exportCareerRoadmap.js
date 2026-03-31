@@ -4,7 +4,7 @@ import {
   getRoadmapPosterSize,
   getRoadmapScores,
   getRoadmapSelections,
-  roadmapStageScoreLayout
+  getRoadmapStageScoreLayout
 } from "../data/roadmap.js";
 
 const ROADMAP_EXPORT_WIDTH = 1080;
@@ -15,6 +15,7 @@ export async function exportCareerRoadmap(state) {
     ? ROADMAP_PREMADE_ASSET_PATH
     : ROADMAP_BACKGROUND_ASSET_PATH;
   const posterSize = getRoadmapPosterSize(state.roadmapVariant);
+  const scoreLayout = getRoadmapStageScoreLayout(state.roadmapVariant);
   const canvas = document.createElement("canvas");
   const scale = ROADMAP_EXPORT_WIDTH / posterSize.width;
   const exportHeight = Math.round(posterSize.height * scale);
@@ -53,8 +54,9 @@ export async function exportCareerRoadmap(state) {
     posterSize.height
   );
 
+  drawRoadmapScores(context, getRoadmapScores(state), scoreLayout);
+
   if (!isPremadeRoadmap) {
-    drawRoadmapScores(context, getRoadmapScores(state));
     drawRoadmapSelections(context, selectionImages);
   }
 
@@ -65,15 +67,19 @@ export async function exportCareerRoadmap(state) {
   await saveRoadmapBlob(blob, filename);
 }
 
-function drawRoadmapScores(context, scores) {
+function drawRoadmapScores(context, scores, scoreLayout) {
   Object.entries(scores).forEach(([stage, score]) => {
-    const layout = roadmapStageScoreLayout[stage];
+    const layout = scoreLayout[stage];
+
+    if (!layout) {
+      return;
+    }
 
     context.save();
-    context.fillStyle = "#000000";
+    context.fillStyle = layout.color || "#000000";
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.font = `500 ${layout.fontSize}px "Museo", "Helvetica Neue", Arial, sans-serif`;
+    context.font = `${layout.fontWeight || 500} ${layout.fontSize}px "Museo", "Helvetica Neue", Arial, sans-serif`;
     context.fillText(`${score}%`, layout.x, layout.y);
     context.restore();
   });

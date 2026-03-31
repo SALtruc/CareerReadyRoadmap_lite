@@ -6,7 +6,7 @@ import {
   getRoadmapPosterSize,
   getRoadmapScores,
   getRoadmapSelections,
-  roadmapStageScoreLayout
+  getRoadmapStageScoreLayout
 } from "../data/roadmap.js";
 
 export function renderCareerRoadmapScreen(state) {
@@ -15,6 +15,7 @@ export function renderCareerRoadmapScreen(state) {
     ? ROADMAP_PREMADE_ASSET_PATH
     : ROADMAP_BACKGROUND_ASSET_PATH;
   const posterSize = getRoadmapPosterSize(state.roadmapVariant);
+  const scoreLayout = getRoadmapStageScoreLayout(state.roadmapVariant);
   const scores = getRoadmapScores(state);
   const selections = isPremadeRoadmap ? [] : getRoadmapSelections(state);
 
@@ -49,10 +50,10 @@ export function renderCareerRoadmapScreen(state) {
             loading="eager"
             draggable="false"
           >
+          ${renderRoadmapScore("explore", scores.explore, scoreLayout.explore, posterSize)}
+          ${renderRoadmapScore("develop", scores.develop, scoreLayout.develop, posterSize)}
+          ${renderRoadmapScore("transition", scores.transition, scoreLayout.transition, posterSize)}
           ${isPremadeRoadmap ? "" : `
-            ${renderRoadmapScore("explore", scores.explore, posterSize)}
-            ${renderRoadmapScore("develop", scores.develop, posterSize)}
-            ${renderRoadmapScore("transition", scores.transition, posterSize)}
             ${selections.map((selection) => renderRoadmapSelection(selection, posterSize)).join("")}
           `}
           <button
@@ -87,8 +88,10 @@ export function renderCareerRoadmapScreen(state) {
   `;
 }
 
-function renderRoadmapScore(stage, score, posterSize) {
-  const layout = roadmapStageScoreLayout[stage];
+function renderRoadmapScore(stage, score, layout, posterSize) {
+  if (!layout) {
+    return "";
+  }
 
   return `
     <div
@@ -96,7 +99,9 @@ function renderRoadmapScore(stage, score, posterSize) {
       style="${formatRoadmapStyle({
         left: `${toPercent(layout.x, posterSize.width)}%`,
         top: `${toPercent(layout.y, posterSize.height)}%`,
-        "--roadmap-score-font": `${toPercent(layout.fontSize, posterSize.width)}cqw`
+        "--roadmap-score-font": `${toPercent(layout.fontSize, posterSize.width)}cqw`,
+        "--roadmap-score-color": layout.color || "#000000",
+        "--roadmap-score-weight": layout.fontWeight || 500
       })}"
       aria-label="${stage} score ${score} percent"
     >

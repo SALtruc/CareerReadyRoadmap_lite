@@ -7,6 +7,28 @@ const QUESTION_IDS_BY_STAGE = {
 const MAX_BODY_LENGTH = 20000;
 const STUDENT_ID_PATTERN = /^S\d{7}$/;
 
+function getUnlockConfig() {
+  const envConfig = {
+    appsScriptUrl: process.env.APPS_SCRIPT_URL || "",
+    appsScriptSecret: process.env.APPS_SCRIPT_SECRET || ""
+  };
+
+  if (envConfig.appsScriptUrl && envConfig.appsScriptSecret) {
+    return envConfig;
+  }
+
+  try {
+    const localConfig = require("./localUnlockConfig.js");
+
+    return {
+      appsScriptUrl: localConfig.APPS_SCRIPT_URL || "",
+      appsScriptSecret: localConfig.APPS_SCRIPT_SECRET || ""
+    };
+  } catch (error) {
+    return envConfig;
+  }
+}
+
 function json(res, status, body) {
   return res.status(status).json(body);
 }
@@ -57,15 +79,15 @@ function getStageScore(answers, stage) {
   );
 }
 
-async function appendUnlockRow(payload) {
-  const response = await fetch(process.env.APPS_SCRIPT_URL, {
+async function appendUnlockRow(payload, config) {
+  const response = await fetch(config.appsScriptUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
       ...payload,
-      secret: process.env.APPS_SCRIPT_SECRET
+      secret: config.appsScriptSecret
     })
   });
 
@@ -115,7 +137,9 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  if (!process.env.APPS_SCRIPT_URL || !process.env.APPS_SCRIPT_SECRET) {
+  const unlockConfig = getUnlockConfig();
+
+  if (!unlockConfig.appsScriptUrl || !unlockConfig.appsScriptSecret) {
     return json(res, 500, {
       ok: false,
       error: "missing_apps_script_config",
@@ -168,7 +192,7 @@ module.exports = async function handler(req, res) {
       transitionScore: getStageScore(answers, "transition")
     };
 
-    const appendResult = await appendUnlockRow(payload);
+    const appendResult = await appendUnlockRow(payload, unlockConfig);
 
     if (!appendResult.ok) {
       return json(res, 502, {
