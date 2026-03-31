@@ -1,4 +1,4 @@
-const DEFAULT_FRAME_DELAY_MS = 100;
+const DEFAULT_FRAME_DELAY_MS = 10;
 const gifDurationPromiseBySrc = new Map();
 
 export function getGifDurationMs(src) {
