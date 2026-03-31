@@ -747,6 +747,38 @@ function handleAppInput(event) {
   }
 }
 
+function handleStudentUnlockEnter(event) {
+  if (state.screen !== "student-unlock") {
+    return;
+  }
+
+  if (event.key !== "Enter") {
+    return;
+  }
+
+  const input = event.target;
+
+  if (!(input instanceof HTMLInputElement) || input.dataset.input !== "student-id") {
+    return;
+  }
+
+  const form = input.closest("[data-form='student-unlock']");
+
+  if (!form) {
+    return;
+  }
+
+  const studentIdDigits = String(state.studentIdDraft || "").trim();
+
+  if (studentIdDigits.length !== 7) {
+    setStudentUnlockStatus("Please enter the 7 digits after S.", "error");
+    return;
+  }
+
+  event.preventDefault();
+  void submitStudentUnlock(form);
+}
+
 function handleAppSubmit(event) {
   const form = event.target.closest("[data-form]");
   if (!form || !app.contains(form)) {
@@ -1213,6 +1245,7 @@ function createRoadmapPreviewState() {
 app.addEventListener("click", handleAppClick);
 app.addEventListener("click", handleGenericButtonClick, true);
 app.addEventListener("input", handleAppInput);
+app.addEventListener("keydown", handleStudentUnlockEnter);
 app.addEventListener("pointerdown", handleGenericButtonPointerDown, true);
 app.addEventListener("submit", handleAppSubmit);
 window.addEventListener("pointerup", clearGenericPressedButton, true);
