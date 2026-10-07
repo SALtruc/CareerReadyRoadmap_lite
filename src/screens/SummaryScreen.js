@@ -39,8 +39,9 @@ export function renderSummaryScreen(state) {
       <div class="summary-viewport">
         <div class="summary-shell" data-preserve-scroll="summary-results">
           <div class="summary-results__hero">
+            <div class="summary-results__coach" aria-hidden="true">
             <img
-              class="summary-results__coach"
+              class="summary-results__coach-image"
               data-asset-image="summary-results-coach"
               src="${resultsCoachAssetPath}"
               alt=""
@@ -48,6 +49,7 @@ export function renderSummaryScreen(state) {
               loading="eager"
               draggable="false"
             >
+            </div>
             <div class="summary-results__callout">
               <img
                 class="summary-results__bubble"

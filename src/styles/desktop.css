@@ -82,13 +82,16 @@
   .welcome-coach {
     grid-column: 1;
     grid-row: 1 / 3;
-    width: min(100%, 360px, calc((100dvh - 158px) * 282 / 560));
+    width: min(100%, 500px, calc((100dvh - 110px) * 494 / 848));
+    height: calc(100dvh - 158px);
     justify-self: center;
     align-self: end;
-    transform: none;
+    transform: translateY(24px);
   }
 
   .screen--welcome .coach {
+    position: absolute;
+    bottom: 0;
     max-width: none;
     transform: none;
   }
@@ -212,7 +215,7 @@
     min-height: 100dvh;
     padding: 110px var(--desktop-gutter) 48px;
     --summary-shell-width: min(100%, 1200px);
-    --summary-hero-coach-column: minmax(140px, 0.85fr);
+    --summary-hero-coach-column: minmax(180px, 1.15fr);
     --summary-hero-gap: 16px;
     --summary-hero-offset-y: 0px;
     --summary-hero-overlap-y: 0px;
@@ -221,7 +224,7 @@
     --summary-coach-shift-x: 0px;
     --summary-coach-shift-y: 0px;
     --summary-callout-offset-y: 0px;
-    --summary-callout-shift-x: 0px;
+    --summary-callout-shift-x: 32px;
     --summary-callout-shift-y: 0px;
     --summary-bubble-scale: 1;
     --summary-score-font-size: clamp(28px, 3vw, 46px);
@@ -248,7 +251,16 @@
   }
 
   .summary-results__coach {
-    object-fit: contain;
+    position: fixed;
+    left: max(var(--desktop-gutter), calc((100vw - 1200px) / 2 - 72px));
+    bottom: 0;
+    width: min(28vw, 420px, calc((100dvh - 110px) * 494 / 848));
+    height: auto;
+    transform: none;
+  }
+
+  .summary-results__callout {
+    grid-column: 2;
   }
 
   .summary-results__cards {

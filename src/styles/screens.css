@@ -3528,7 +3528,7 @@
     translate(var(--summary-coach-shift-x), var(--summary-coach-shift-y))
     scale(var(--summary-coach-scale, 1));
   transform-origin: center bottom;
-  object-fit: cover;
+  object-fit: contain;
   object-position: top center;
 }
 
@@ -4067,4 +4067,26 @@
     --student-unlock-bubble-shift-x: -50px;
     --student-unlock-bubble-shift-y: -30px;
   }
+}
+
+/* Crop the original coach at the skirt hem, keeping the original artwork. */
+.screen--welcome .coach {
+  aspect-ratio: 494 / 848;
+  overflow: hidden;
+}
+
+.screen--welcome .coach__image {
+  height: auto;
+}
+
+.summary-results__coach {
+  aspect-ratio: 494 / 848;
+  height: auto;
+  overflow: hidden;
+}
+
+.summary-results__coach-image {
+  display: block;
+  width: 100%;
+  height: auto;
 }
