@@ -1,6 +1,12 @@
 # Career Ready Roadmap Draft
 
-This is a lightweight mobile-web prototype built with plain HTML, CSS, and JavaScript.
+This is a lightweight responsive web app built with plain HTML, CSS, and JavaScript.
+
+Desktop layouts apply above 900px, including touch-enabled laptops. The desktop
+shell fills the viewport; avatars use four columns, question controls sit beside
+the card, and results and student unlock use two columns. Phone layouts retain
+their existing artwork. The portrait roadmap poster stays proportional and scrolls.
+Desktop overrides live in `src/styles/desktop.css`, imported after the mobile styles.
 
 ## Run
 

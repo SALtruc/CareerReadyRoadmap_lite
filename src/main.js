@@ -99,12 +99,16 @@ subscribeToAssetStateChanges(({ assetPath, status }) => {
 });
 
 function render() {
+  const screenChanged = app.dataset.screen !== state.screen;
   const preservedScroll = capturePreservedScroll();
   persistAppState();
   app.dataset.screen = state.screen;
   document.body.dataset.screen = state.screen;
   app.innerHTML = renderApp(state);
   restorePreservedScroll(preservedScroll);
+  if (screenChanged) {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }
   bindAssetImages();
   bindSummaryBoardMotion();
   bindQuestionDeckProgress();
